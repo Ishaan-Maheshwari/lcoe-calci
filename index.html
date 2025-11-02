@@ -252,11 +252,45 @@
                 <!-- Heatmap Table -->
                 <div id="heatmap-table-container" style="margin-top: 20px; overflow-x: auto;"></div>
             </div>
+
+            <!-- PARAMETER RANGE ANALYSIS -->
+            <div class="chart-container-full" style="margin-top: 40px;">
+                <h3 style="color: #333; margin-bottom: 15px;">📊 Parameter Range Analysis</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                    See how LCOE changes across realistic parameter ranges. Understand the full sensitivity spectrum.
+                </p>
+
+                <!-- Combined Parameters Chart -->
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <canvas id="chart-parameters-combo" style="min-height: 350px;"></canvas>
+                </div>
+
+                <!-- Individual Parameter Charts -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; margin-bottom: 30px;">
+                    <div style="background: white; padding: 20px; border-radius: 8px;">
+                        <canvas id="chart-capex-range" style="min-height: 300px;"></canvas>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px;">
+                        <canvas id="chart-energy-range" style="min-height: 300px;"></canvas>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px;">
+                        <canvas id="chart-discount-range" style="min-height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Range Summary Table -->
+                <h4 style="color: #333; margin-bottom: 15px;">📋 Range Summary Table</h4>
+                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                    Quick reference showing LCOE at minimum, current, and maximum for each parameter.
+                </p>
+                <div id="range-summary-container" style="overflow-x: auto; background: white; padding: 20px; border-radius: 8px;"></div>
+            </div>
         </div>
     </div>
 
     <script src="calculator.js"></script>
     <script src="advanced-charts.js"></script>
+    <script src="range-charts.js"></script>
     <script src="ui.js"></script>
 </body>
 </html>
