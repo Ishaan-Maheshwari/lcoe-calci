@@ -194,59 +194,69 @@
             </div>
         </div>
 
-        <!-- CHARTS SECTION -->
+        <!-- ADVANCED CHARTS SECTION -->
         <div class="charts-section">
-            <h2 style="text-align: center; color: #333; margin-bottom: 30px;">📊 Analysis Charts</h2>
+            <h2 style="text-align: center; color: #333; margin-bottom: 30px;">🔍 Advanced Sensitivity Analysis</h2>
 
-            <div class="charts-grid">
-                <!-- Sensitivity to Discount Rate -->
-                <div class="chart-container">
-                    <canvas id="chart-sensitivity-discount"></canvas>
+            <!-- TORNADO DIAGRAM -->
+            <div class="chart-container-full">
+                <h3 style="color: #333; margin-bottom: 15px;">🌪️ Tornado Diagram: Which Parameters Matter Most?</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                    Shows how ±% change in each parameter affects LCOE. <strong>Wider bars = More impact</strong>. Ranked by sensitivity.
+                </p>
+                <div class="tornado-controls" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                    <label>Variance (±%):</label>
+                    <input type="number" id="tornado-variance" value="20" min="5" max="50" step="5" style="width: 80px;">
+                    <button class="btn-primary" onclick="UI.updateTornadoChart()" style="width: auto; padding: 8px 16px;">Update</button>
                 </div>
-
-                <!-- Cost Breakdown -->
-                <div class="chart-container">
-                    <canvas id="chart-cost-breakdown"></canvas>
-                </div>
-
-                <!-- Energy Degradation -->
-                <div class="chart-container">
-                    <canvas id="chart-energy-degradation"></canvas>
-                </div>
-
-                <!-- Cash Flows -->
-                <div class="chart-container">
-                    <canvas id="chart-cash-flows"></canvas>
-                </div>
+                <canvas id="chart-tornado" style="min-height: 400px;"></canvas>
             </div>
 
-            <!-- Sensitivity Analysis Controls -->
-            <div class="sensitivity-controls" style="margin-top: 40px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
-                <h3 style="color: #333; margin-bottom: 15px;">⚙️ Sensitivity Analysis Options</h3>
+            <!-- DUAL PARAMETER HEATMAP -->
+            <div class="chart-container-full" style="margin-top: 40px;">
+                <h3 style="color: #333; margin-bottom: 15px;">🔥 Dual Parameter Heatmap: Interactive Sensitivity</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                    Explore LCOE across two parameters simultaneously. <strong>Green = Low LCOE (better)</strong>, <strong>Red = High LCOE (worse)</strong>.
+                </p>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <div class="input-group">
-                        <label>Min Discount Rate (%)</label>
-                        <input type="number" id="sensitivity-min-rate" value="5" step="0.5">
+                <div class="heatmap-controls">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div class="input-group">
+                            <label>First Parameter:</label>
+                            <select id="heatmap-param1" onchange="UI.updateHeatmap()">
+                                <option value="capex_per_mw">CAPEX per MW (₹)</option>
+                                <option value="energy_generation">Annual Energy (MWh)</option>
+                                <option value="discount_rate">Discount Rate (%)</option>
+                                <option value="opex_percent">OPEX % of CAPEX</option>
+                                <option value="interest_rate">Interest Rate (%)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Second Parameter:</label>
+                            <select id="heatmap-param2" onchange="UI.updateHeatmap()">
+                                <option value="discount_rate">Discount Rate (%)</option>
+                                <option value="capex_per_mw">CAPEX per MW (₹)</option>
+                                <option value="energy_generation">Annual Energy (MWh)</option>
+                                <option value="opex_percent">OPEX % of CAPEX</option>
+                                <option value="interest_rate">Interest Rate (%)</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label>Max Discount Rate (%)</label>
-                        <input type="number" id="sensitivity-max-rate" value="15" step="0.5">
-                    </div>
-                    <div class="input-group">
-                        <label>Step Size (%)</label>
-                        <input type="number" id="sensitivity-step" value="0.5" step="0.1" min="0.1">
-                    </div>
+                    <button class="btn-primary" onclick="UI.updateHeatmap()" style="width: 100%; margin-bottom: 15px;">Generate Heatmap</button>
                 </div>
 
-                <button class="btn-primary" onclick="UI.updateSensitivityChart()" style="width: 100%; margin-bottom: 10px;">🔄 Update Sensitivity Chart</button>
-                <button class="btn-secondary" onclick="UI.downloadCharts()" style="width: 100%;">💾 Download Charts</button>
+                <div class="heatmap-chart-container">
+                    <canvas id="chart-heatmap" style="min-height: 400px; margin-bottom: 20px;"></canvas>
+                </div>
+
+                <!-- Heatmap Table -->
+                <div id="heatmap-table-container" style="margin-top: 20px; overflow-x: auto;"></div>
             </div>
         </div>
     </div>
 
     <script src="calculator.js"></script>
-    <script src="charts.js"></script>
+    <script src="advanced-charts.js"></script>
     <script src="ui.js"></script>
 </body>
 </html>

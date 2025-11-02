@@ -215,6 +215,97 @@ UI.updateSensitivityChart = function() {
 };
 
 /**
+ * Update Tornado Diagram
+ */
+UI.updateTornadoChart = function() {
+    if (!UI.lastResults) return;
+
+    const inputs = UI.lastResults.inputs;
+    const variance = parseFloat(document.getElementById('tornado-variance').value) || 20;
+
+    try {
+        AdvancedCharts.plotTornado(inputs, variance);
+        console.log('✅ Tornado chart updated');
+    } catch (error) {
+        console.error('❌ Error updating tornado chart:', error);
+    }
+};
+
+/**
+ * Update Dual Parameter Heatmap
+ */
+UI.updateHeatmap = function() {
+    if (!UI.lastResults) return;
+
+    const inputs = UI.lastResults.inputs;
+
+    // Get selected parameters
+    const param1_key = document.getElementById('heatmap-param1')?.value || 'capex_per_mw';
+    const param2_key = document.getElementById('heatmap-param2')?.value || 'discount_rate';
+
+    // Define parameter ranges and labels
+    const param_config = {
+        capex_per_mw: {
+            label: 'CAPEX per MW (₹)',
+            range: [30e6, 40e6, 50e6, 60e6, 70e6]
+        },
+        energy_generation: {
+            label: 'Annual Energy (MWh)',
+            range: [1000, 1300, 1700, 2100, 2500]
+        },
+        discount_rate: {
+            label: 'Discount Rate (%)',
+            range: [5, 7, 9, 11, 13]
+        },
+        opex_percent: {
+            label: 'OPEX (% of CAPEX)',
+            range: [1, 1.5, 2.0, 2.5, 3.0]
+        },
+        interest_rate: {
+            label: 'Interest Rate (%)',
+            range: [7, 8, 9, 10, 11]
+        }
+    };
+
+    const param1_config = param_config[param1_key];
+    const param2_config = param_config[param2_key];
+
+    if (!param1_config || !param2_config) {
+        console.error('Invalid parameter selection');
+        return;
+    }
+
+    try {
+        // Plot bubble chart heatmap
+        AdvancedCharts.plotDualParameterHeatmap(
+            inputs,
+            param1_key,
+            param1_config.label,
+            param1_config.range,
+            param2_key,
+            param2_config.label,
+            param2_config.range
+        );
+
+        // Display table below
+        const table_html = AdvancedCharts.displayHeatmapTable(
+            inputs,
+            param1_key,
+            param1_config.label,
+            param1_config.range,
+            param2_key,
+            param2_config.label,
+            param2_config.range
+        );
+
+        document.getElementById('heatmap-table-container').innerHTML = table_html;
+        console.log('✅ Heatmap updated');
+    } catch (error) {
+        console.error('❌ Error updating heatmap:', error);
+    }
+};
+
+/**
  * Update all charts based on current calculation results
  */
 UI.updateAllCharts = function() {
@@ -222,35 +313,19 @@ UI.updateAllCharts = function() {
 
     const { inputs, results } = UI.lastResults;
 
-    // Update sensitivity chart
+    // Update Tornado Chart
     try {
-        const min_rate = parseFloat(document.getElementById('sensitivity-min-rate')?.value || 5);
-        const max_rate = parseFloat(document.getElementById('sensitivity-max-rate')?.value || 15);
-        const step = parseFloat(document.getElementById('sensitivity-step')?.value || 0.5);
-        Charts.plotSensitivityToDiscountRate(inputs, min_rate, max_rate, step);
+        const variance = parseFloat(document.getElementById('tornado-variance')?.value || 20);
+        AdvancedCharts.plotTornado(inputs, variance);
     } catch (error) {
-        console.warn('⚠️ Could not update sensitivity chart:', error.message);
+        console.warn('⚠️ Could not update tornado chart:', error.message);
     }
 
-    // Update cost breakdown chart
+    // Update Heatmap
     try {
-        Charts.plotCostBreakdown(results);
+        UI.updateHeatmap();
     } catch (error) {
-        console.warn('⚠️ Could not update cost breakdown chart:', error.message);
-    }
-
-    // Update energy degradation chart
-    try {
-        Charts.plotEnergyDegradation(inputs, results);
-    } catch (error) {
-        console.warn('⚠️ Could not update energy degradation chart:', error.message);
-    }
-
-    // Update cash flows chart
-    try {
-        Charts.plotCashFlows(results.cash_flows, inputs.discount_rate);
-    } catch (error) {
-        console.warn('⚠️ Could not update cash flows chart:', error.message);
+        console.warn('⚠️ Could not update heatmap:', error.message);
     }
 };
 
