@@ -45,16 +45,23 @@ const UI = {
     // Default values for inputs
     defaults: {
 
-        
-
         capacity: 1.0,
-        energy_generation: 1700,
-        capex_per_mw: 50000000,
-        opex_percent: 2.0,
-        interest_rate: 10.0,
-        loan_tenure: 10,
-        project_lifetime: 25,
-        discount_rate: 8.0
+        energy_generation: 1627.53,
+        capex_per_mw: 34400000,
+        opex_percent: 1.0,
+        interest_rate: 8.25,
+        loan_tenure: 20,
+        project_lifetime: 20,
+        discount_rate: 9.0
+
+        // capacity: 1.0,
+        // energy_generation: 1700,
+        // capex_per_mw: 50000000,
+        // opex_percent: 2.0,
+        // interest_rate: 10.0,
+        // loan_tenure: 10,
+        // project_lifetime: 25,
+        // discount_rate: 8.0
     },
 
     // Charts auto-update flag
