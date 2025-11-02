@@ -276,6 +276,108 @@ button {
     }
 }
 
+/* ============================================
+   CHARTS SECTION
+   ============================================ */
+
+.charts-section {
+    padding: 40px;
+    background: #fafafa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.chart-container canvas {
+    max-height: 400px;
+}
+
+.sensitivity-controls {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sensitivity-controls .input-group {
+    margin-bottom: 0;
+}
+
+.sensitivity-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.sensitivity-table th,
+.sensitivity-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.sensitivity-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+}
+
+.sensitivity-table tr:hover {
+    background: #f5f5f5;
+}
+
+.sensitivity-table caption {
+    background: #f0f0f0;
+    padding: 12px;
+    font-weight: 600;
+    color: #333;
+    text-align: left;
+}
+
+/* ============================================
+   RESPONSIVE CHARTS
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .charts-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .charts-section {
+        padding: 20px;
+    }
+
+    .chart-container {
+        padding: 15px;
+    }
+
+    .sensitivity-controls {
+        padding: 15px;
+    }
+}
+
 @media (max-width: 640px) {
     header h1 {
         font-size: 1.8em;
@@ -291,5 +393,15 @@ button {
 
     .button-group {
         flex-direction: column;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .sensitivity-controls {
+        display: grid;
+        gap: 10px;
     }
 }

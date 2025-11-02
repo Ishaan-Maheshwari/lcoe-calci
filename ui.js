@@ -4,10 +4,10 @@
  * ============================================
  * 
  * This module handles all UI updates, DOM interactions,
- * and event listeners. It consumes the calculator.js module.
+ * event listeners, and chart generation.
  * 
  * Author: Energy Economics Team
- * Version: 1.0
+ * Version: 2.0 (With Charts Support)
  */
 
 // ============================================
@@ -37,7 +37,6 @@ const UI = {
         capex: 'breakdown-capex',
         om: 'breakdown-om',
         loan: 'breakdown-loan',
-        total_opex: 'breakdown-total-opex',
         npv: 'breakdown-npv',
         energy: 'breakdown-energy',
         cue_percent: 'breakdown-cue-percent'
@@ -46,14 +45,17 @@ const UI = {
     // Default values for inputs
     defaults: {
         capacity: 1.0,
-        energy_generation: 1627.53,
-        capex_per_mw: 34400000,
-        opex_percent: 1.0,
-        interest_rate: 8.25,
-        loan_tenure: 20,
-        project_lifetime: 20,
-        discount_rate: 9.0
-    }
+        energy_generation: 1700,
+        capex_per_mw: 50000000,
+        opex_percent: 2.0,
+        interest_rate: 10.0,
+        loan_tenure: 10,
+        project_lifetime: 25,
+        discount_rate: 8.0
+    },
+
+    // Charts auto-update flag
+    autoUpdateCharts: true
 };
 
 // ============================================
@@ -175,9 +177,6 @@ UI.updateResults = function() {
     
     document.getElementById(UI.outputIds.loan).textContent = 
         UI.formatIndianCurrency(results.total_loan);
-
-    document.getElementById(UI.outputIds.total_opex).textContent = 
-        UI.formatIndianCurrency(results.total_opex);
     
     document.getElementById(UI.outputIds.npv).textContent = 
         UI.formatIndianCurrency(results.npv_opex);
@@ -187,6 +186,72 @@ UI.updateResults = function() {
     
     document.getElementById(UI.outputIds.cue_percent).textContent = 
         UI.formatPercent(results.cue);
+
+    // ===== AUTO-UPDATE CHARTS IF ENABLED =====
+    if (UI.autoUpdateCharts) {
+        UI.updateAllCharts();
+    }
+};
+
+// ============================================
+// CHART UPDATE FUNCTIONS
+// ============================================
+
+/**
+ * Update sensitivity chart based on user inputs
+ */
+UI.updateSensitivityChart = function() {
+    const inputs = UI.getInputs();
+    const min_rate = parseFloat(document.getElementById('sensitivity-min-rate').value) || 5;
+    const max_rate = parseFloat(document.getElementById('sensitivity-max-rate').value) || 15;
+    const step = parseFloat(document.getElementById('sensitivity-step').value) || 0.5;
+
+    try {
+        Charts.plotSensitivityToDiscountRate(inputs, min_rate, max_rate, step);
+        console.log('✅ Sensitivity chart updated');
+    } catch (error) {
+        console.error('❌ Error updating sensitivity chart:', error);
+    }
+};
+
+/**
+ * Update all charts based on current calculation results
+ */
+UI.updateAllCharts = function() {
+    if (!UI.lastResults) return;
+
+    const { inputs, results } = UI.lastResults;
+
+    // Update sensitivity chart
+    try {
+        const min_rate = parseFloat(document.getElementById('sensitivity-min-rate')?.value || 5);
+        const max_rate = parseFloat(document.getElementById('sensitivity-max-rate')?.value || 15);
+        const step = parseFloat(document.getElementById('sensitivity-step')?.value || 0.5);
+        Charts.plotSensitivityToDiscountRate(inputs, min_rate, max_rate, step);
+    } catch (error) {
+        console.warn('⚠️ Could not update sensitivity chart:', error.message);
+    }
+
+    // Update cost breakdown chart
+    try {
+        Charts.plotCostBreakdown(results);
+    } catch (error) {
+        console.warn('⚠️ Could not update cost breakdown chart:', error.message);
+    }
+
+    // Update energy degradation chart
+    try {
+        Charts.plotEnergyDegradation(inputs, results);
+    } catch (error) {
+        console.warn('⚠️ Could not update energy degradation chart:', error.message);
+    }
+
+    // Update cash flows chart
+    try {
+        Charts.plotCashFlows(results.cash_flows, inputs.discount_rate);
+    } catch (error) {
+        console.warn('⚠️ Could not update cash flows chart:', error.message);
+    }
 };
 
 // ============================================
@@ -231,11 +296,18 @@ UI.generateCSVContent = function() {
     csv += `Annual EMI (₹),${results.annual_emi.toFixed(2)}\n`;
     csv += `Total O&M Cost (₹),${results.total_om.toFixed(2)}\n`;
     csv += `Total Loan Repayment (₹),${results.total_loan.toFixed(2)}\n`;
+    csv += `Total OPEX,${results.total_opex.toFixed(2)}\n`;
     csv += `NPV of OPEX (₹),${results.npv_opex.toFixed(2)}\n`;
     csv += `Total Energy Generated (MWh),${results.total_energy.toFixed(2)}\n\n`;
 
-    // ===== CALCULATION NOTES =====
-    csv += '=== CALCULATION NOTES ===\n';
+    // ===== ANNUAL CASH FLOWS =====
+    csv += '=== ANNUAL CASH FLOWS ===\n';
+    csv += 'Year,Cash Flow (₹)\n';
+    results.cash_flows.forEach((cf, index) => {
+        csv += `${index + 1},${cf.toFixed(2)}\n`;
+    });
+
+    csv += '\n=== CALCULATION NOTES ===\n';
     csv += 'OPEX Escalation Rate,5% per year\n';
     csv += 'Panel Degradation Rate,0.5% per year\n';
     csv += 'LCOE Formula,(CAPEX + NPV of OPEX) / Total Energy Generated\n';
@@ -272,6 +344,13 @@ UI.downloadCSV = function() {
     document.body.removeChild(link);
 };
 
+/**
+ * Download charts as images (placeholder - requires html2canvas)
+ */
+UI.downloadCharts = function() {
+    alert('💡 To download charts, right-click on any chart and select "Save image as..."');
+};
+
 // ============================================
 // EVENT LISTENER SETUP
 // ============================================
@@ -288,17 +367,15 @@ UI.initializeEventListeners = function() {
             element.addEventListener('input', () => UI.updateResults());
         }
     });
-};
 
-/**
- * Alternative: Set up using addEventListener instead of inline onclick
- */
-UI.initializeButtonListeners = function() {
-    const resetBtn = document.querySelector('button:contains("Reset")');
-    const exportBtn = document.querySelector('button:contains("Export")');
-    
-    // Note: This approach is optional if using inline onclick in HTML
-    // Keep HTML onclick for simplicity, but this could be used instead
+    // Attach sensitivity control listeners
+    const sensitivityInputs = ['sensitivity-min-rate', 'sensitivity-max-rate', 'sensitivity-step'];
+    sensitivityInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', () => UI.updateSensitivityChart());
+        }
+    });
 };
 
 // ============================================
@@ -317,10 +394,11 @@ function initializeApp() {
     UI.updateResults();
     
     console.log('✅ Solar LCOE Calculator initialized successfully');
+    console.log('📊 Charts module loaded and ready');
 }
 
 // Run initialization when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 // Also allow manual initialization if needed
-window.Solar = { UI, initializeApp };
+window.Solar = { UI, Charts, initializeApp };

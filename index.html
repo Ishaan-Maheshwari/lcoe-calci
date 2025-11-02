@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solar LCOE Calculator</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -172,10 +174,6 @@
                             <td class="value" id="breakdown-loan">0.00</td>
                         </tr>
                         <tr>
-                            <td class="label">Total OPEX (₹)</td>
-                            <td class="value" id="breakdown-total-opex">0.00</td>
-                        </tr>
-                        <tr>
                             <td class="label">NPV of OPEX (₹)</td>
                             <td class="value" id="breakdown-npv">0.00</td>
                         </tr>
@@ -195,9 +193,60 @@
                 </div>
             </div>
         </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="charts-section">
+            <h2 style="text-align: center; color: #333; margin-bottom: 30px;">📊 Analysis Charts</h2>
+
+            <div class="charts-grid">
+                <!-- Sensitivity to Discount Rate -->
+                <div class="chart-container">
+                    <canvas id="chart-sensitivity-discount"></canvas>
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div class="chart-container">
+                    <canvas id="chart-cost-breakdown"></canvas>
+                </div>
+
+                <!-- Energy Degradation -->
+                <div class="chart-container">
+                    <canvas id="chart-energy-degradation"></canvas>
+                </div>
+
+                <!-- Cash Flows -->
+                <div class="chart-container">
+                    <canvas id="chart-cash-flows"></canvas>
+                </div>
+            </div>
+
+            <!-- Sensitivity Analysis Controls -->
+            <div class="sensitivity-controls" style="margin-top: 40px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                <h3 style="color: #333; margin-bottom: 15px;">⚙️ Sensitivity Analysis Options</h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div class="input-group">
+                        <label>Min Discount Rate (%)</label>
+                        <input type="number" id="sensitivity-min-rate" value="5" step="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Max Discount Rate (%)</label>
+                        <input type="number" id="sensitivity-max-rate" value="15" step="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Step Size (%)</label>
+                        <input type="number" id="sensitivity-step" value="0.5" step="0.1" min="0.1">
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="UI.updateSensitivityChart()" style="width: 100%; margin-bottom: 10px;">🔄 Update Sensitivity Chart</button>
+                <button class="btn-secondary" onclick="UI.downloadCharts()" style="width: 100%;">💾 Download Charts</button>
+            </div>
+        </div>
     </div>
 
     <script src="calculator.js"></script>
+    <script src="charts.js"></script>
     <script src="ui.js"></script>
 </body>
 </html>
