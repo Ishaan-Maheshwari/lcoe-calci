@@ -143,7 +143,8 @@ AdvancedCharts.plotTornado = function(base_inputs, variance_percent = 20) {
                     backgroundColor: AdvancedCharts.colors.decrease,
                     borderColor: AdvancedCharts.colors.decrease,
                     borderWidth: 1,
-                    barThickness: 35
+                    barThickness: 28,
+                    borderSkipped: false
                 },
                 {
                     label: `LCOE Increase [+${variance_percent}%]`,
@@ -151,7 +152,8 @@ AdvancedCharts.plotTornado = function(base_inputs, variance_percent = 20) {
                     backgroundColor: AdvancedCharts.colors.increase,
                     borderColor: AdvancedCharts.colors.increase,
                     borderWidth: 1,
-                    barThickness: 35
+                    barThickness: 28,
+                    borderSkipped: false
                 }
             ]
         },
@@ -192,7 +194,7 @@ AdvancedCharts.plotTornado = function(base_inputs, variance_percent = 20) {
             },
             scales: {
                 x: {
-                    stacked: true,
+                    stacked: false,
                     title: {
                         display: true,
                         text: 'LCOE Impact (₹/kWh)',
@@ -203,9 +205,12 @@ AdvancedCharts.plotTornado = function(base_inputs, variance_percent = 20) {
                     }
                 },
                 y: {
-                    stacked: false,
+                    stacked: true,
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        padding: 15
                     }
                 }
             }

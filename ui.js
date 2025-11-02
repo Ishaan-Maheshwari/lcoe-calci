@@ -44,6 +44,9 @@ const UI = {
 
     // Default values for inputs
     defaults: {
+
+        
+
         capacity: 1.0,
         energy_generation: 1700,
         capex_per_mw: 50000000,
