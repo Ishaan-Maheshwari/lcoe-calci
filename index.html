@@ -194,33 +194,52 @@
             </div>
         </div>
 
-        <!-- ADVANCED CHARTS SECTION -->
-        <div class="charts-section">
-            <h2 style="text-align: center; color: #333; margin-bottom: 30px;">🔍 Advanced Sensitivity Analysis</h2>
-
-            <!-- TORNADO DIAGRAM -->
-            <div class="chart-container-full">
-                <h3 style="color: #333; margin-bottom: 15px;">🌪️ Tornado Diagram: Which Parameters Matter Most?</h3>
-                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
-                    Shows how ±% change in each parameter affects LCOE. <strong>Wider bars = More impact</strong>. Ranked by sensitivity.
-                </p>
-                <div class="tornado-controls" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
-                    <label>Variance (±%):</label>
-                    <input type="number" id="tornado-variance" value="20" min="5" max="50" step="5" style="width: 80px;">
-                    <button class="btn-primary" onclick="UI.updateTornadoChart()" style="width: auto; padding: 8px 16px;">Update</button>
-                </div>
-                <canvas id="chart-tornado" style="min-height: 400px;"></canvas>
+        <!-- TABBED ANALYSIS SECTION -->
+        <div class="analysis-section">
+            <h2 style="text-align: center; color: #333; margin-bottom: 20px;">🔍 Advanced Analysis</h2>
+            
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="UI.switchTab('sensitivity')">
+                    🌪️ Sensitivity Analysis
+                </button>
+                <button class="tab-btn" onclick="UI.switchTab('heatmap')">
+                    🔥 Parameter Heatmap
+                </button>
+                <button class="tab-btn" onclick="UI.switchTab('ranges')">
+                    📊 Range Analysis
+                </button>
             </div>
 
-            <!-- DUAL PARAMETER HEATMAP -->
-            <div class="chart-container-full" style="margin-top: 40px;">
-                <h3 style="color: #333; margin-bottom: 15px;">🔥 Dual Parameter Heatmap: Interactive Sensitivity</h3>
-                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
-                    Explore LCOE across two parameters simultaneously. <strong>Green = Low LCOE (better)</strong>, <strong>Red = High LCOE (worse)</strong>.
-                </p>
+            <!-- Tab Content Containers -->
+            
+            <!-- SENSITIVITY TAB -->
+            <div id="tab-sensitivity" class="tab-content active">
+                <div class="tab-header">
+                    <h3>🌪️ Tornado Diagram: Which Parameters Matter Most?</h3>
+                    <p>Shows how ±% change in each parameter affects LCOE. <strong>Wider bars = More impact</strong>. Ranked by sensitivity.</p>
+                </div>
+
+                <div class="sensitivity-controls">
+                    <label>Variance (±%):</label>
+                    <input type="number" id="tornado-variance" value="20" min="5" max="50" step="5" style="width: 80px;">
+                    <button class="btn-primary" onclick="UI.updateTornadoChart()" style="width: auto; padding: 8px 16px;">📊 Generate Chart</button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="chart-tornado"></canvas>
+                </div>
+            </div>
+
+            <!-- HEATMAP TAB -->
+            <div id="tab-heatmap" class="tab-content">
+                <div class="tab-header">
+                    <h3>🔥 Dual Parameter Heatmap: Interactive Sensitivity</h3>
+                    <p>Explore LCOE across two parameters simultaneously. <strong>Green = Low LCOE (better)</strong>, <strong>Red = High LCOE (worse)</strong>.</p>
+                </div>
 
                 <div class="heatmap-controls">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px;">
                         <div class="input-group">
                             <label>First Parameter:</label>
                             <select id="heatmap-param1" onchange="UI.updateHeatmap()">
@@ -242,48 +261,53 @@
                             </select>
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="UI.updateHeatmap()" style="width: 100%; margin-bottom: 15px;">Generate Heatmap</button>
+                    <button class="btn-primary" onclick="UI.updateHeatmap()" style="width: 100%;">🔥 Generate Heatmap</button>
                 </div>
 
-                <div class="heatmap-chart-container">
-                    <canvas id="chart-heatmap" style="min-height: 400px; margin-bottom: 20px;"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="chart-heatmap"></canvas>
                 </div>
 
                 <!-- Heatmap Table -->
-                <div id="heatmap-table-container" style="margin-top: 20px; overflow-x: auto;"></div>
+                <div id="heatmap-table-container" style="margin-top: 30px; overflow-x: auto;"></div>
             </div>
 
-            <!-- PARAMETER RANGE ANALYSIS -->
-            <div class="chart-container-full" style="margin-top: 40px;">
-                <h3 style="color: #333; margin-bottom: 15px;">📊 Parameter Range Analysis</h3>
-                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
-                    See how LCOE changes across realistic parameter ranges. Understand the full sensitivity spectrum.
-                </p>
+            <!-- RANGES TAB -->
+            <div id="tab-ranges" class="tab-content">
+                <div class="tab-header">
+                    <h3>📊 Parameter Range Analysis</h3>
+                    <p>See how LCOE changes across realistic parameter ranges. Understand the full sensitivity spectrum.</p>
+                </div>
+
+                <button class="btn-primary" onclick="UI.generateRangeAnalysis()" style="width: 100%; margin-bottom: 20px;">📈 Generate All Charts</button>
 
                 <!-- Combined Parameters Chart -->
-                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <canvas id="chart-parameters-combo" style="min-height: 350px;"></canvas>
+                <div class="chart-wrapper">
+                    <h4 style="text-align: center; color: #333; margin-bottom: 15px;">📈 Parameter Sensitivity Comparison</h4>
+                    <canvas id="chart-parameters-combo"></canvas>
                 </div>
 
                 <!-- Individual Parameter Charts -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; margin-bottom: 30px;">
-                    <div style="background: white; padding: 20px; border-radius: 8px;">
-                        <canvas id="chart-capex-range" style="min-height: 300px;"></canvas>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; margin-top: 30px;">
+                    <div class="chart-wrapper">
+                        <canvas id="chart-capex-range"></canvas>
                     </div>
-                    <div style="background: white; padding: 20px; border-radius: 8px;">
-                        <canvas id="chart-energy-range" style="min-height: 300px;"></canvas>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-energy-range"></canvas>
                     </div>
-                    <div style="background: white; padding: 20px; border-radius: 8px;">
-                        <canvas id="chart-discount-range" style="min-height: 300px;"></canvas>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-discount-range"></canvas>
                     </div>
                 </div>
 
                 <!-- Range Summary Table -->
-                <h4 style="color: #333; margin-bottom: 15px;">📋 Range Summary Table</h4>
-                <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
-                    Quick reference showing LCOE at minimum, current, and maximum for each parameter.
-                </p>
-                <div id="range-summary-container" style="overflow-x: auto; background: white; padding: 20px; border-radius: 8px;"></div>
+                <div style="margin-top: 40px;">
+                    <h4 style="color: #333; margin-bottom: 15px;">📋 Range Summary Table</h4>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                        Quick reference showing LCOE at minimum, current, and maximum for each parameter.
+                    </p>
+                    <div id="range-summary-container" style="overflow-x: auto; background: white; padding: 20px; border-radius: 8px;"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -118,7 +118,8 @@ label {
 }
 
 input[type="number"],
-input[type="text"] {
+input[type="text"],
+select {
     padding: 12px;
     border: 2px solid #e0e0e0;
     border-radius: 6px;
@@ -127,7 +128,8 @@ input[type="text"] {
 }
 
 input[type="number"]:focus,
-input[type="text"]:focus {
+input[type="text"]:focus,
+select:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
@@ -224,7 +226,6 @@ input[type="text"]:focus {
 }
 
 button {
-    flex: 1;
     padding: 14px;
     border: none;
     border-radius: 6px;
@@ -237,6 +238,7 @@ button {
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    flex: 1;
 }
 
 .btn-primary:hover {
@@ -248,6 +250,7 @@ button {
     background: #f0f0f0;
     color: #333;
     border: 2px solid #e0e0e0;
+    flex: 1;
 }
 
 .btn-secondary:hover {
@@ -266,97 +269,136 @@ button {
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   TABBED INTERFACE
    ============================================ */
 
-@media (max-width: 1024px) {
-    .content {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-}
-
-/* ============================================
-   CHARTS SECTION
-   ============================================ */
-
-.charts-section {
+.analysis-section {
     padding: 40px;
     background: #fafafa;
     border-top: 1px solid #e0e0e0;
 }
 
-.chart-container-full {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.tab-navigation {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: transparent;
+    color: #666;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex: 0 0 auto;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-header {
     margin-bottom: 30px;
 }
 
-.tornado-controls,
+.tab-header h3 {
+    color: #333;
+    font-size: 1.3em;
+    margin-bottom: 8px;
+}
+
+.tab-header p {
+    color: #666;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+/* ============================================
+   CONTROLS & INPUTS
+   ============================================ */
+
+.sensitivity-controls,
 .heatmap-controls {
-    background: #f5f5f5;
-    padding: 15px;
-    border-radius: 6px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
     align-items: center;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.tornado-controls label,
+.sensitivity-controls label,
 .heatmap-controls label {
     font-weight: 600;
     white-space: nowrap;
 }
 
 .heatmap-controls select {
-    padding: 10px;
-    border: 2px solid #e0e0e0;
-    border-radius: 4px;
-    font-size: 1em;
     cursor: pointer;
-    transition: border-color 0.3s;
 }
 
-.heatmap-controls select:hover,
-.heatmap-controls select:focus {
-    outline: none;
-    border-color: #667eea;
-}
+/* ============================================
+   CHART WRAPPER
+   ============================================ */
 
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 30px;
-    margin-bottom: 40px;
-}
-
-.chart-container {
+.chart-wrapper {
     background: white;
-    padding: 20px;
+    padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
 }
 
-.chart-container canvas {
+.chart-wrapper canvas {
     max-height: 400px;
 }
 
-.sensitivity-controls {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.chart-wrapper h4 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.1em;
 }
 
-.sensitivity-controls .input-group {
-    margin-bottom: 0;
-}
+/* ============================================
+   TABLES
+   ============================================ */
 
-.sensitivity-table {
+.range-summary-table {
     width: 100%;
     border-collapse: collapse;
     background: white;
@@ -365,24 +407,68 @@ button {
     overflow: hidden;
 }
 
-.sensitivity-table th,
-.sensitivity-table td {
-    padding: 12px;
+.range-summary-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.range-summary-table th {
+    padding: 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95em;
+    white-space: nowrap;
+}
+
+.range-summary-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95em;
+}
+
+.range-summary-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.range-summary-table .param-name {
+    font-weight: 600;
+    color: #333;
+    min-width: 150px;
+}
+
+.range-summary-table .lcoe-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.range-summary-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+    padding: 8px 12px;
     text-align: center;
     border: 1px solid #e0e0e0;
 }
 
-.sensitivity-table th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+.heatmap-table th {
+    background: #f0f0f0;
+    color: #333;
     font-weight: 600;
 }
 
-.sensitivity-table tr:hover {
-    background: #f5f5f5;
-}
-
-.sensitivity-table caption {
+.heatmap-table caption {
     background: #f0f0f0;
     padding: 12px;
     font-weight: 600;
@@ -391,39 +477,47 @@ button {
 }
 
 /* ============================================
-   RESPONSIVE CHARTS
+   RESPONSIVE DESIGN
    ============================================ */
 
-@media (max-width: 1200px) {
-    .charts-grid {
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+@media (max-width: 1024px) {
+    .content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .tab-navigation {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .tab-btn {
+        border-bottom: none;
+        border-right: 3px solid transparent;
+        text-align: left;
+        width: 100%;
+    }
+
+    .tab-btn:hover {
+        border-right-color: #667eea;
+    }
+
+    .tab-btn.active {
+        border-right-color: #667eea;
     }
 }
 
 @media (max-width: 768px) {
-    .charts-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .charts-section {
-        padding: 20px;
-    }
-
-    .chart-container {
-        padding: 15px;
-    }
-
-    .sensitivity-controls {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 640px) {
     header h1 {
         font-size: 1.8em;
     }
 
     .content {
+        padding: 20px;
+        gap: 30px;
+    }
+
+    .analysis-section {
         padding: 20px;
     }
 
@@ -435,13 +529,57 @@ button {
         flex-direction: column;
     }
 
-    .charts-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+    .sensitivity-controls,
+    .heatmap-controls {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .sensitivity-controls {
-        display: grid;
-        gap: 10px;
+    .sensitivity-controls input,
+    .heatmap-controls select {
+        width: 100%;
+    }
+
+    .chart-wrapper {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 640px) {
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .content {
+        padding: 15px;
+        grid-template-columns: 1fr;
+    }
+
+    .panel h2 {
+        font-size: 1.3em;
+    }
+
+    .tab-navigation {
+        gap: 3px;
+        margin-bottom: 20px;
+    }
+
+    .tab-btn {
+        padding: 10px 12px;
+        font-size: 0.85em;
+    }
+
+    .result-card .value {
+        font-size: 1.4em;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 0.9em;
     }
 }

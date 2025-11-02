@@ -45,21 +45,13 @@ const UI = {
     // Default values for inputs
     defaults: {
         capacity: 1.0,
-        energy_generation: 1627.53,
-        capex_per_mw: 34400000,
-        opex_percent: 1.0,
-        interest_rate: 8.25,
-        loan_tenure: 20,
-        project_lifetime: 20,
-        discount_rate: 9.0
-        // capacity: 1.0,
-        // energy_generation: 1700,
-        // capex_per_mw: 50000000,
-        // opex_percent: 2.0,
-        // interest_rate: 10.0,
-        // loan_tenure: 10,
-        // project_lifetime: 25,
-        // discount_rate: 8.0
+        energy_generation: 1700,
+        capex_per_mw: 50000000,
+        opex_percent: 2.0,
+        interest_rate: 10.0,
+        loan_tenure: 10,
+        project_lifetime: 25,
+        discount_rate: 8.0
     },
 
     // Charts auto-update flag
@@ -517,8 +509,65 @@ function initializeApp() {
     console.log('📊 Charts module loaded and ready');
 }
 
+/**
+ * Switch between analysis tabs
+ */
+UI.switchTab = function(tab_name) {
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    // Remove active class from all buttons
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // Show selected tab
+    const selected_tab = document.getElementById(`tab-${tab_name}`);
+    if (selected_tab) {
+        selected_tab.classList.add('active');
+    }
+
+    // Mark button as active
+    event.target.classList.add('active');
+
+    // Generate charts when tab is activated
+    if (tab_name === 'sensitivity') {
+        UI.updateTornadoChart();
+    } else if (tab_name === 'heatmap') {
+        UI.updateHeatmap();
+    } else if (tab_name === 'ranges') {
+        UI.generateRangeAnalysis();
+    }
+};
+
+/**
+ * Generate all range analysis charts at once
+ */
+UI.generateRangeAnalysis = function() {
+    if (!UI.lastResults) return;
+
+    const inputs = UI.lastResults.inputs;
+
+    try {
+        RangeCharts.plotAllParametersCombo(inputs);
+        RangeCharts.plotCapexRange(inputs);
+        RangeCharts.plotEnergyRange(inputs);
+        RangeCharts.plotDiscountRange(inputs);
+        
+        const summary_html = RangeCharts.generateRangeSummaryTable(inputs);
+        const container = document.getElementById('range-summary-container');
+        if (container) {
+            container.innerHTML = summary_html;
+        }
+        
+        console.log('✅ Range analysis generated');
+    } catch (error) {
+        console.error('❌ Error generating range analysis:', error);
+    }
+};
+
 // Run initialization when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 // Also allow manual initialization if needed
-window.Solar = { UI, Charts, initializeApp };
+window.Solar = { UI, AdvancedCharts, RangeCharts, initializeApp };
