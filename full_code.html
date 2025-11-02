@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar LCOE Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+            min-height: 600px;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel h2 {
+            font-size: 1.6em;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tooltip-icon {
+            cursor: help;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7em;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: normal;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .auto-calc {
+            background: #f5f5f5;
+            font-style: italic;
+            color: #666;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-card h3 {
+            font-size: 0.95em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .result-card .unit {
+            font-size: 0.9em;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .breakdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+
+        .breakdown-table th {
+            background: #f0f0f0;
+            color: #333;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .breakdown-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+        }
+
+        .breakdown-table tr:hover {
+            background: #fafafa;
+        }
+
+        .breakdown-table .label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .breakdown-table .value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .result-card .value {
+                font-size: 1.6em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #1565c0;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☀️ Solar LCOE Calculator</h1>
+            <p>Levelized Cost of Energy Analysis for Solar Power Projects</p>
+        </header>
+
+        <div class="content">
+            <!-- LEFT PANEL: INPUTS -->
+            <div class="panel">
+                <h2>📊 Input Parameters</h2>
+
+                <!-- Project Capacity -->
+                <div class="input-group">
+                    <label>
+                        Installed Capacity (MW)
+                        <span class="tooltip-icon" data-tooltip="Total installed MW capacity">?</span>
+                    </label>
+                    <input type="number" id="capacity" value="1.0" step="0.1" min="0.01">
+                </div>
+
+                <!-- Annual Energy Generation -->
+                <div class="input-group">
+                    <label>
+                        Annual Energy Generation (MWh)
+                        <span class="tooltip-icon" data-tooltip="Expected annual energy output">?</span>
+                    </label>
+                    <input type="number" id="energy_generation" value="1700" step="10" min="0">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- CAPEX -->
+                <div class="input-group">
+                    <label>
+                        CAPEX per MW (₹)
+                        <span class="tooltip-icon" data-tooltip="Capital cost per MW">?</span>
+                    </label>
+                    <input type="number" id="capex_per_mw" value="50000000" step="1000000" min="0">
+                </div>
+
+                <!-- OPEX Percentage -->
+                <div class="input-group">
+                    <label>
+                        Annual OPEX (% of CAPEX)
+                        <span class="tooltip-icon" data-tooltip="Operation & Maintenance as % of total CAPEX">?</span>
+                    </label>
+                    <input type="number" id="opex_percent" value="2.0" step="0.1" min="0">
+                </div>
+
+                <!-- Auto-calculated OPEX -->
+                <div class="input-group">
+                    <label>
+                        Calculated Annual OPEX (₹)
+                        <span class="tooltip-icon" data-tooltip="Auto-calculated from CAPEX × OPEX%">?</span>
+                    </label>
+                    <input type="text" id="opex_calculated" readonly class="auto-calc">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Loan Details -->
+                <div class="input-group">
+                    <label>
+                        Loan Interest Rate (%)
+                        <span class="tooltip-icon" data-tooltip="Annual interest rate on debt">?</span>
+                    </label>
+                    <input type="number" id="interest_rate" value="10.0" step="0.1" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        Loan Tenure (Years)
+                        <span class="tooltip-icon" data-tooltip="Years to repay the loan">?</span>
+                    </label>
+                    <input type="number" id="loan_tenure" value="10" step="1" min="1">
+                </div>
+
+                <!-- Auto-calculated EMI -->
+                <div class="input-group">
+                    <label>
+                        Annual EMI (₹)
+                        <span class="tooltip-icon" data-tooltip="Auto-calculated annual loan repayment">?</span>
+                    </label>
+                    <input type="text" id="emi_calculated" readonly class="auto-calc">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Project Lifetime -->
+                <div class="input-group">
+                    <label>
+                        Project Lifetime (Years)
+                        <span class="tooltip-icon" data-tooltip="Total analysis period">?</span>
+                    </label>
+                    <input type="number" id="project_lifetime" value="25" step="1" min="1">
+                </div>
+
+                <!-- Discount Rate -->
+                <div class="input-group">
+                    <label>
+                        Discount Rate (%)
+                        <span class="tooltip-icon" data-tooltip="Rate for NPV calculation">?</span>
+                    </label>
+                    <input type="number" id="discount_rate" value="8.0" step="0.1" min="0" max="50">
+                </div>
+
+                <!-- CUE -->
+                <div class="input-group">
+                    <label>
+                        Capacity Utilization Efficiency
+                        <span class="tooltip-icon" data-tooltip="Annual energy / (Capacity × 8760 hours)">?</span>
+                    </label>
+                    <input type="text" id="cue_calculated" readonly class="auto-calc">
+                </div>
+
+                <div class="info-box">
+                    💡 All values auto-update when inputs change. Yellow fields are calculated automatically.
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm()">🔄 Reset</button>
+                    <button class="btn-primary" onclick="downloadCSV()">📥 Export CSV</button>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: RESULTS -->
+            <div class="panel">
+                <h2>📈 Results</h2>
+
+                <!-- Main LCOE Results -->
+                <div class="result-card">
+                    <h3>LCOE (per MWh)</h3>
+                    <div class="value" id="lcoe_mwh">₹0.00</div>
+                    <div class="unit">Levelized Cost per MWh</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>LCOE (per kWh)</h3>
+                    <div class="value" id="lcoe_kwh">₹0.00</div>
+                    <div class="unit">Levelized Cost per kWh</div>
+                </div>
+
+                <!-- Breakdown Table -->
+                <h3 style="color: #333; margin-top: 20px;">Detailed Breakdown</h3>
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="label">Total CAPEX (₹)</td>
+                            <td class="value" id="breakdown-capex">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total O&M Cost (₹)</td>
+                            <td class="value" id="breakdown-om">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total Loan Repayment (₹)</td>
+                            <td class="value" id="breakdown-loan">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">NPV of OPEX (₹)</td>
+                            <td class="value" id="breakdown-npv">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total Energy Generated (MWh)</td>
+                            <td class="value" id="breakdown-energy">0.00</td>
+                        </tr>
+                        <tr style="background: #f0f0f0; font-weight: bold;">
+                            <td class="label">Capacity Utilization (%) </td>
+                            <td class="value" id="breakdown-cue-percent">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    📝 <strong>Formula Used:</strong> LCOE = (CAPEX + NPV of OPEX) / Total Energy Generated
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONSTANTS & CONFIGURATION
+        // ============================================
+        const CONSTANTS = {
+            hours_in_year: 8760,           // Standard hours per year
+            opex_escalation_rate: 0.05,    // 5% annual OPEX increase
+            degradation_rate: 0.005,       // 0.5% annual panel degradation
+        };
+
+        // ============================================
+        // CORE CALCULATION FUNCTIONS
+        // ============================================
+
+        /**
+         * Calculate total CAPEX (Capital Expenditure)
+         * @param {number} capacity - Capacity in MW
+         * @param {number} capex_per_mw - CAPEX per MW
+         * @returns {number} Total CAPEX
+         */
+        function calculateCAPEX(capacity, capex_per_mw) {
+            return capacity * capex_per_mw;
+        }
+
+        /**
+         * Calculate annual EMI (Equated Monthly Installment converted to annual)
+         * Uses standard loan amortization formula
+         * @param {number} principal - Total loan amount
+         * @param {number} annual_rate - Annual interest rate (%)
+         * @param {number} years - Loan tenure in years
+         * @returns {number} Annual EMI
+         */
+        function calculateEMI(principal, annual_rate, years) {
+            if (years === 0 || annual_rate === 0) return principal / Math.max(years, 1);
+            
+            const monthly_rate = annual_rate / 100 / 12;
+            const num_months = years * 12;
+            
+            if (monthly_rate === 0) return principal / num_months;
+            
+            const emi = (principal * monthly_rate * Math.pow(1 + monthly_rate, num_months)) 
+                        / (Math.pow(1 + monthly_rate, num_months) - 1);
+            return emi * 12; // Convert monthly EMI to annual
+        }
+
+        /**
+         * Calculate total O&M costs with annual escalation
+         * @param {number} annual_opex - Annual OPEX in Year 0
+         * @param {number} years - Number of years
+         * @returns {number} Total O&M cost
+         */
+        function calculateTotalOM(annual_opex, years) {
+            let total = 0;
+            for (let i = 0; i < years; i++) {
+                total += annual_opex * Math.pow(1 + CONSTANTS.opex_escalation_rate, i);
+            }
+            return total;
+        }
+
+        /**
+         * Calculate total energy generation with annual degradation
+         * @param {number} annual_energy - Annual energy generation in MWh (Year 0)
+         * @param {number} years - Project lifetime in years
+         * @returns {number} Total energy generated over project life
+         */
+        function calculateTotalEnergy(annual_energy, years) {
+            let total = 0;
+            for (let i = 0; i < years; i++) {
+                total += annual_energy * Math.pow(1 - CONSTANTS.degradation_rate, i);
+            }
+            return total;
+        }
+
+        /**
+         * Calculate NPV (Net Present Value) of cash flows
+         * NPV = sum of (cash_flow_t / (1 + discount_rate)^t) for all periods
+         * @param {number} discount_rate - Discount rate (%)
+         * @param {array} cash_flows - Array of annual cash flows
+         * @returns {number} NPV
+         */
+        function calculateNPV(discount_rate, cash_flows) {
+            const rate = discount_rate / 100;
+            let npv = 0;
+            
+            for (let t = 0; t < cash_flows.length; t++) {
+                npv += cash_flows[t] / Math.pow(1 + rate, t);
+            }
+            
+            return npv;
+        }
+
+        /**
+         * Calculate LCOE components and main values
+         * @param {object} inputs - Input parameters object
+         * @returns {object} Object containing all calculated values
+         */
+        function calculateLCOE(inputs) {
+            // Extract inputs
+            const {
+                capacity,
+                energy_generation,
+                capex_per_mw,
+                opex_percent,
+                interest_rate,
+                loan_tenure,
+                project_lifetime,
+                discount_rate
+            } = inputs;
+
+            // Step 1: Calculate CAPEX
+            const capex = calculateCAPEX(capacity, capex_per_mw);
+
+            // Step 2: Calculate annual OPEX and EMI
+            const annual_opex = (capex * opex_percent) / 100;
+            const capex_for_loan = capex; // Assume full CAPEX is financed
+            const annual_emi = calculateEMI(capex_for_loan, interest_rate, loan_tenure);
+
+            // Step 3: Calculate total O&M
+            const total_om = calculateTotalOM(annual_opex, project_lifetime);
+
+            // Step 4: Total loan repayment over project lifetime
+            const total_loan = annual_emi * project_lifetime;
+
+            // Step 5: Create cash flows for NPV calculation
+            // OPEX includes both O&M (escalated) and EMI (constant until tenure ends)
+            const cash_flows = [];
+            for (let year = 0; year < project_lifetime; year++) {
+                const om_year = annual_opex * Math.pow(1 + CONSTANTS.opex_escalation_rate, year);
+                const emi_year = year < loan_tenure ? annual_emi : 0;
+                cash_flows.push(om_year + emi_year);
+            }
+
+            // Step 6: Calculate NPV of OPEX
+            const npv_opex = calculateNPV(discount_rate, cash_flows);
+
+            // Step 7: Calculate total energy generated with degradation
+            const total_energy = calculateTotalEnergy(energy_generation, project_lifetime);
+
+            // Step 8: Calculate LCOE
+            const lcoe_mwh = (capex + npv_opex) / total_energy;
+            const lcoe_kwh = lcoe_mwh / 1000;
+
+            // Step 9: Calculate CUE (Capacity Utilization Efficiency)
+            const cue = energy_generation / (capacity * CONSTANTS.hours_in_year);
+
+            return {
+                capex,
+                annual_opex,
+                annual_emi,
+                total_om,
+                total_loan,
+                npv_opex,
+                total_energy,
+                lcoe_mwh,
+                lcoe_kwh,
+                cue,
+                cash_flows
+            };
+        }
+
+        // ============================================
+        // UI UPDATE FUNCTIONS
+        // ============================================
+
+        /**
+         * Get all input values from form
+         */
+        function getInputs() {
+            return {
+                capacity: parseFloat(document.getElementById('capacity').value) || 0,
+                energy_generation: parseFloat(document.getElementById('energy_generation').value) || 0,
+                capex_per_mw: parseFloat(document.getElementById('capex_per_mw').value) || 0,
+                opex_percent: parseFloat(document.getElementById('opex_percent').value) || 0,
+                interest_rate: parseFloat(document.getElementById('interest_rate').value) || 0,
+                loan_tenure: parseInt(document.getElementById('loan_tenure').value) || 1,
+                project_lifetime: parseInt(document.getElementById('project_lifetime').value) || 1,
+                discount_rate: parseFloat(document.getElementById('discount_rate').value) || 0
+            };
+        }
+
+        /**
+         * Format number with Indian numbering system and ₹ symbol
+         */
+        function formatIndianCurrency(num) {
+            return '₹' + num.toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        /**
+         * Format number with commas
+         */
+        function formatNumber(num) {
+            return num.toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        /**
+         * Update all display elements based on current inputs
+         */
+        function updateResults() {
+            const inputs = getInputs();
+            const results = calculateLCOE(inputs);
+
+            // Update calculated fields
+            document.getElementById('opex_calculated').value = 
+                formatIndianCurrency(results.annual_opex);
+            document.getElementById('emi_calculated').value = 
+                formatIndianCurrency(results.annual_emi);
+            document.getElementById('cue_calculated').value = 
+                (results.cue * 100).toFixed(2) + '%';
+
+            // Update main result cards
+            document.getElementById('lcoe_mwh').textContent = 
+                formatIndianCurrency(results.lcoe_mwh);
+            document.getElementById('lcoe_kwh').textContent = 
+                formatIndianCurrency(results.lcoe_kwh);
+
+            // Update breakdown table
+            document.getElementById('breakdown-capex').textContent = 
+                formatIndianCurrency(results.capex);
+            document.getElementById('breakdown-om').textContent = 
+                formatIndianCurrency(results.total_om);
+            document.getElementById('breakdown-loan').textContent = 
+                formatIndianCurrency(results.total_loan);
+            document.getElementById('breakdown-npv').textContent = 
+                formatIndianCurrency(results.npv_opex);
+            document.getElementById('breakdown-energy').textContent = 
+                formatNumber(results.total_energy);
+            document.getElementById('breakdown-cue-percent').textContent = 
+                (results.cue * 100).toFixed(2) + '%';
+
+            // Store results for CSV export
+            window.lastResults = { inputs, results };
+        }
+
+        /**
+         * Export results to CSV
+         */
+        function downloadCSV() {
+            if (!window.lastResults) {
+                alert('Please calculate LCOE first');
+                return;
+            }
+
+            const { inputs, results } = window.lastResults;
+            const timestamp = new Date().toLocaleString('en-IN');
+
+            let csv = 'Solar LCOE Calculator Export\n';
+            csv += `Generated: ${timestamp}\n\n`;
+
+            csv += 'INPUT PARAMETERS\n';
+            csv += `Capacity (MW),${inputs.capacity}\n`;
+            csv += `Annual Energy Generation (MWh),${inputs.energy_generation}\n`;
+            csv += `CAPEX per MW (₹),${inputs.capex_per_mw}\n`;
+            csv += `Annual OPEX (% of CAPEX),${inputs.opex_percent}\n`;
+            csv += `Loan Interest Rate (%),${inputs.interest_rate}\n`;
+            csv += `Loan Tenure (Years),${inputs.loan_tenure}\n`;
+            csv += `Project Lifetime (Years),${inputs.project_lifetime}\n`;
+            csv += `Discount Rate (%),${inputs.discount_rate}\n\n`;
+
+            csv += 'RESULTS\n';
+            csv += `LCOE (₹/MWh),${results.lcoe_mwh.toFixed(2)}\n`;
+            csv += `LCOE (₹/kWh),${results.lcoe_kwh.toFixed(4)}\n`;
+            csv += `Capacity Utilization (%),${(results.cue * 100).toFixed(2)}\n\n`;
+
+            csv += 'DETAILED BREAKDOWN\n';
+            csv += `Total CAPEX (₹),${results.capex.toFixed(2)}\n`;
+            csv += `Annual OPEX (₹),${results.annual_opex.toFixed(2)}\n`;
+            csv += `Annual EMI (₹),${results.annual_emi.toFixed(2)}\n`;
+            csv += `Total O&M Cost (₹),${results.total_om.toFixed(2)}\n`;
+            csv += `Total Loan Repayment (₹),${results.total_loan.toFixed(2)}\n`;
+            csv += `NPV of OPEX (₹),${results.npv_opex.toFixed(2)}\n`;
+            csv += `Total Energy Generated (MWh),${results.total_energy.toFixed(2)}\n`;
+
+            // Create blob and trigger download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `LCOE_Report_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        /**
+         * Reset all inputs to default values
+         */
+        function resetForm() {
+            document.getElementById('capacity').value = '1.0';
+            document.getElementById('energy_generation').value = '1700';
+            document.getElementById('capex_per_mw').value = '50000000';
+            document.getElementById('opex_percent').value = '2.0';
+            document.getElementById('interest_rate').value = '10.0';
+            document.getElementById('loan_tenure').value = '10';
+            document.getElementById('project_lifetime').value = '25';
+            document.getElementById('discount_rate').value = '8.0';
+            updateResults();
+        }
+
+        // ============================================
+        // EVENT LISTENERS & INITIALIZATION
+        // ============================================
+
+        // Attach listeners to all input fields
+        const inputIds = [
+            'capacity', 'energy_generation', 'capex_per_mw', 'opex_percent',
+            'interest_rate', 'loan_tenure', 'project_lifetime', 'discount_rate'
+        ];
+
+        inputIds.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateResults);
+        });
+
+        // Initial calculation on page load
+        document.addEventListener('DOMContentLoaded', updateResults);
+    </script>
+</body>
+</html>

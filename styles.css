@@ -1,0 +1,295 @@
+/* ============================================
+   GLOBAL STYLES & RESET
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ============================================
+   CONTAINER & LAYOUT
+   ============================================ */
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+}
+
+header p {
+    font-size: 1.1em;
+    opacity: 0.95;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 40px;
+    min-height: 600px;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.panel h2 {
+    font-size: 1.6em;
+    color: #333;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 12px;
+}
+
+/* ============================================
+   INPUT STYLES
+   ============================================ */
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tooltip-icon {
+    cursor: help;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #667eea;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7em;
+    font-weight: bold;
+    position: relative;
+}
+
+.tooltip-icon:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 0;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-weight: normal;
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+input[type="number"],
+input[type="text"] {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+}
+
+.auto-calc {
+    background: #f5f5f5;
+    font-style: italic;
+    color: #666;
+}
+
+/* ============================================
+   RESULT CARDS & TABLES
+   ============================================ */
+
+.result-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.result-card h3 {
+    font-size: 0.95em;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.result-card .value {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.result-card .unit {
+    font-size: 0.9em;
+    opacity: 0.85;
+    margin-top: 4px;
+}
+
+.breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.95em;
+}
+
+.breakdown-table th {
+    background: #f0f0f0;
+    color: #333;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.breakdown-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #555;
+}
+
+.breakdown-table tr:hover {
+    background: #fafafa;
+}
+
+.breakdown-table .label {
+    font-weight: 500;
+    color: #333;
+}
+
+.breakdown-table .value {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* ============================================
+   BUTTONS & SECTIONS
+   ============================================ */
+
+.section-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 20px 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: 2px solid #e0e0e0;
+}
+
+.btn-secondary:hover {
+    background: #e8e8e8;
+    border-color: #667eea;
+}
+
+.info-box {
+    background: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #1565c0;
+    margin-top: 12px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+@media (max-width: 640px) {
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .result-card .value {
+        font-size: 1.6em;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+}

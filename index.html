@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar LCOE Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☀️ Solar LCOE Calculator</h1>
+            <p>Levelized Cost of Energy Analysis for Solar Power Projects</p>
+        </header>
+
+        <div class="content">
+            <!-- LEFT PANEL: INPUTS -->
+            <div class="panel">
+                <h2>📊 Input Parameters</h2>
+
+                <!-- Project Capacity -->
+                <div class="input-group">
+                    <label>
+                        Installed Capacity (MW)
+                        <span class="tooltip-icon" data-tooltip="Total installed MW capacity">?</span>
+                    </label>
+                    <input type="number" id="capacity" value="1.0" step="0.1" min="0.01">
+                </div>
+
+                <!-- Annual Energy Generation -->
+                <div class="input-group">
+                    <label>
+                        Annual Energy Generation (MWh)
+                        <span class="tooltip-icon" data-tooltip="Expected annual energy output">?</span>
+                    </label>
+                    <input type="number" id="energy_generation" value="1700" step="10" min="0">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- CAPEX -->
+                <div class="input-group">
+                    <label>
+                        CAPEX per MW (₹)
+                        <span class="tooltip-icon" data-tooltip="Capital cost per MW">?</span>
+                    </label>
+                    <input type="number" id="capex_per_mw" value="50000000" step="1000000" min="0">
+                </div>
+
+                <!-- OPEX Percentage -->
+                <div class="input-group">
+                    <label>
+                        Annual OPEX (% of CAPEX)
+                        <span class="tooltip-icon" data-tooltip="Operation & Maintenance as % of total CAPEX">?</span>
+                    </label>
+                    <input type="number" id="opex_percent" value="2.0" step="0.1" min="0">
+                </div>
+
+                <!-- Auto-calculated OPEX -->
+                <div class="input-group">
+                    <label>
+                        Calculated Annual OPEX (₹)
+                        <span class="tooltip-icon" data-tooltip="Auto-calculated from CAPEX × OPEX%">?</span>
+                    </label>
+                    <input type="text" id="opex_calculated" readonly class="auto-calc">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Loan Details -->
+                <div class="input-group">
+                    <label>
+                        Loan Interest Rate (%)
+                        <span class="tooltip-icon" data-tooltip="Annual interest rate on debt">?</span>
+                    </label>
+                    <input type="number" id="interest_rate" value="10.0" step="0.1" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        Loan Tenure (Years)
+                        <span class="tooltip-icon" data-tooltip="Years to repay the loan">?</span>
+                    </label>
+                    <input type="number" id="loan_tenure" value="10" step="1" min="1">
+                </div>
+
+                <!-- Auto-calculated EMI -->
+                <div class="input-group">
+                    <label>
+                        Annual EMI (₹)
+                        <span class="tooltip-icon" data-tooltip="Auto-calculated annual loan repayment">?</span>
+                    </label>
+                    <input type="text" id="emi_calculated" readonly class="auto-calc">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Project Lifetime -->
+                <div class="input-group">
+                    <label>
+                        Project Lifetime (Years)
+                        <span class="tooltip-icon" data-tooltip="Total analysis period">?</span>
+                    </label>
+                    <input type="number" id="project_lifetime" value="25" step="1" min="1">
+                </div>
+
+                <!-- Discount Rate -->
+                <div class="input-group">
+                    <label>
+                        Discount Rate (%)
+                        <span class="tooltip-icon" data-tooltip="Rate for NPV calculation">?</span>
+                    </label>
+                    <input type="number" id="discount_rate" value="8.0" step="0.1" min="0" max="50">
+                </div>
+
+                <!-- CUE -->
+                <div class="input-group">
+                    <label>
+                        Capacity Utilization Efficiency
+                        <span class="tooltip-icon" data-tooltip="Annual energy / (Capacity × 8760 hours)">?</span>
+                    </label>
+                    <input type="text" id="cue_calculated" readonly class="auto-calc">
+                </div>
+
+                <div class="info-box">
+                    💡 All values auto-update when inputs change. Yellow fields are calculated automatically.
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="UI.resetForm()">🔄 Reset</button>
+                    <button class="btn-primary" onclick="UI.downloadCSV()">📥 Export CSV</button>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: RESULTS -->
+            <div class="panel">
+                <h2>📈 Results</h2>
+
+                <!-- Main LCOE Results -->
+                <div class="result-card">
+                    <h3>LCOE (per MWh)</h3>
+                    <div class="value" id="lcoe_mwh">₹0.00</div>
+                    <div class="unit">Levelized Cost per MWh</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>LCOE (per kWh)</h3>
+                    <div class="value" id="lcoe_kwh">₹0.00</div>
+                    <div class="unit">Levelized Cost per kWh</div>
+                </div>
+
+                <!-- Breakdown Table -->
+                <h3 style="color: #333; margin-top: 20px;">Detailed Breakdown</h3>
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="label">Total CAPEX (₹)</td>
+                            <td class="value" id="breakdown-capex">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total O&M Cost (₹)</td>
+                            <td class="value" id="breakdown-om">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total Loan Repayment (₹)</td>
+                            <td class="value" id="breakdown-loan">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total OPEX (₹)</td>
+                            <td class="value" id="breakdown-total-opex">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">NPV of OPEX (₹)</td>
+                            <td class="value" id="breakdown-npv">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Total Energy Generated (MWh)</td>
+                            <td class="value" id="breakdown-energy">0.00</td>
+                        </tr>
+                        <tr style="background: #f0f0f0; font-weight: bold;">
+                            <td class="label">Capacity Utilization (%) </td>
+                            <td class="value" id="breakdown-cue-percent">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    📝 <strong>Formula Used:</strong> LCOE = (CAPEX + NPV of OPEX) / Total Energy Generated
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="calculator.js"></script>
+    <script src="ui.js"></script>
+</body>
+</html>
