@@ -44,7 +44,7 @@ const UI = {
 
     // Default values for inputs
     defaults: {
-
+        
         capacity: 1.0,
         energy_generation: 1627.53,
         capex_per_mw: 34400000,
@@ -272,7 +272,7 @@ UI.updateRangeAnalysis = function() {
 };
 
 /**
- * Update Dual Parameter Heatmap
+ * Update Dual Parameter Heatmap with Grid Style
  */
 UI.updateHeatmap = function() {
     if (!UI.lastResults) return;
@@ -316,8 +316,8 @@ UI.updateHeatmap = function() {
     }
 
     try {
-        // Plot bubble chart heatmap
-        AdvancedCharts.plotDualParameterHeatmap(
+        // Use Grid Heatmap instead of bubble chart
+        HeatmapAlternatives.plotGridHeatmap(
             inputs,
             param1_key,
             param1_config.label,
@@ -327,19 +327,7 @@ UI.updateHeatmap = function() {
             param2_config.range
         );
 
-        // Display table below
-        const table_html = AdvancedCharts.displayHeatmapTable(
-            inputs,
-            param1_key,
-            param1_config.label,
-            param1_config.range,
-            param2_key,
-            param2_config.label,
-            param2_config.range
-        );
-
-        document.getElementById('heatmap-table-container').innerHTML = table_html;
-        console.log('✅ Heatmap updated');
+        console.log('✅ Grid heatmap updated');
     } catch (error) {
         console.error('❌ Error updating heatmap:', error);
     }
