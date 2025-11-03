@@ -37,6 +37,7 @@ const UI = {
         capex: 'breakdown-capex',
         om: 'breakdown-om',
         loan: 'breakdown-loan',
+        opex: 'breakdown-opex',
         npv: 'breakdown-npv',
         energy: 'breakdown-energy',
         cue_percent: 'breakdown-cue-percent'
@@ -187,6 +188,9 @@ UI.updateResults = function() {
     
     document.getElementById(UI.outputIds.loan).textContent = 
         UI.formatIndianCurrency(results.total_loan);
+    
+    document.getElementById(UI.outputIds.opex).textContent = 
+        UI.formatIndianCurrency(results.total_opex);
     
     document.getElementById(UI.outputIds.npv).textContent = 
         UI.formatIndianCurrency(results.npv_opex);

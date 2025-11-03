@@ -74,6 +74,7 @@
                     <label>
                         Loan Interest Rate (%)
                         <span class="tooltip-icon" data-tooltip="Annual interest rate on debt">?</span>
+                        <span style="font-size: 0.8em; color: #a09e80;">Put interest rate as 0 if no loan is applicable.</span>
                     </label>
                     <input type="number" id="interest_rate" value="8.25" step="0.1" min="0">
                 </div>
@@ -174,6 +175,10 @@
                             <td class="value" id="breakdown-loan">0.00</td>
                         </tr>
                         <tr>
+                            <td class="label">Total OPEX (₹)</td>
+                            <td class="value" id="breakdown-opex">0.00</td>
+                        </tr>
+                        <tr>
                             <td class="label">NPV of OPEX (₹)</td>
                             <td class="value" id="breakdown-npv">0.00</td>
                         </tr>
@@ -196,7 +201,7 @@
 
         <!-- TABBED ANALYSIS SECTION -->
         <div class="analysis-section">
-            <h2 style="text-align: center; color: #333; margin-bottom: 20px;">🔍 Advanced Analysis</h2>
+            <h2 style="text-align: center; color: #333; margin-bottom: 20px;">📈 Charts & Analysis</h2>
             
             <!-- Tab Navigation -->
             <div class="tab-navigation">
@@ -275,7 +280,7 @@
                     <p>See how LCOE changes across realistic parameter ranges. Understand the full sensitivity spectrum.</p>
                 </div>
 
-                <button class="btn-primary" onclick="UI.generateRangeAnalysis()" style="width: 100%; margin-bottom: 20px;">📈 Generate All Charts</button>
+                <!-- <button class="btn-primary" onclick="UI.generateRangeAnalysis()" style="width: 100%; margin-bottom: 20px;">📈 Generate All Charts</button> -->
 
                 <!-- Combined Parameters Chart -->
                 <div class="chart-wrapper">
