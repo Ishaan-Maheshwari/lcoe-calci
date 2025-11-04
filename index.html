@@ -32,7 +32,7 @@
                 <!-- Annual Energy Generation -->
                 <div class="input-group">
                     <label>
-                        Annual Energy Generation (MWh)
+                        Total Energy Generated (MWh)
                         <span class="tooltip-icon" data-tooltip="Expected annual energy output">?</span>
                     </label>
                     <input type="number" id="energy_generation" value="1627.53" step="10" min="0">
@@ -43,8 +43,8 @@
                 <!-- CAPEX -->
                 <div class="input-group">
                     <label>
-                        CAPEX per MW (₹)
-                        <span class="tooltip-icon" data-tooltip="Capital cost per MW">?</span>
+                        Total CAPEX (₹)
+                        <span class="tooltip-icon" data-tooltip="Total Capital cost">?</span>
                     </label>
                     <input type="number" id="capex_per_mw" value="34400000" step="1000000" min="0">
                 </div>
@@ -131,7 +131,8 @@
 
                 <div class="button-group">
                     <button class="btn-secondary" onclick="UI.resetForm()">🔄 Reset</button>
-                    <button class="btn-primary" onclick="UI.downloadCSV()">📥 Export CSV</button>
+                    <button class="btn-primary" onclick="UI.updateResults()">📊 Calculate LCOE</button>
+                    <!-- <button class="btn-primary" onclick="UI.downloadCSV()">📥 Export CSV</button> -->
                 </div>
             </div>
 

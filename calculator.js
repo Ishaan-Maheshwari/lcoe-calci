@@ -21,7 +21,8 @@ const CONSTANTS = {
  * @returns {number} Total CAPEX in ₹
  */
 function calculateCAPEX(capacity, capex_per_mw) {
-    return capacity * capex_per_mw;
+    // return capacity * capex_per_mw;
+    return capex_per_mw / capacity ;
 }
 
 /**
@@ -115,8 +116,8 @@ function calculateTotalEnergy(annual_energy, years) {
  */
 function calculateNPV(discount_rate, cash_flows) {
     const rate = discount_rate / 100;
-    console.log("Rate :" + rate);
-    console.log("Cash Flows :" + cash_flows);
+    // console.log("Rate :" + rate);
+    // console.log("Cash Flows :" + cash_flows);
     let npv = 0;
     
     for (let t = 0; t < cash_flows.length; t++) {
@@ -129,9 +130,9 @@ function calculateNPV(discount_rate, cash_flows) {
 
 function calculateNPVlikeExcel(discount_rate, cash_flows) {
     const rate = discount_rate / 100;
-    console.log("Rate :" + rate);
+    // console.log("Rate :" + rate);
     cash_flows.unshift(0.0);
-    console.log("Cash Flows :" + cash_flows);
+    // console.log("Cash Flows :" + cash_flows);
     let npv = 0;
     
     for (let t = 0; t < cash_flows.length; t++) {
@@ -196,7 +197,15 @@ function calculateLCOE(inputs) {
     } = inputs;
 
     // Step 1: Calculate total CAPEX
+    console.log("Capacity :" + capacity);
+    console.log("Energy Generation :" + energy_generation);
+    console.log("CAPEX per MW :" + capex_per_mw);
     const capex = calculateCAPEX(capacity, capex_per_mw);
+    const energy_generation_per_year = energy_generation / capacity;
+    console.log("-----------------")
+    console.log("Capacity :" + capacity);
+    console.log("Energy Generation :" + energy_generation_per_year);
+    console.log("CAPEX per MW :" + capex);
 
     // Step 2: Calculate annual OPEX and annual EMI
     const annual_opex = (capex * opex_percent) / 100;
@@ -227,7 +236,7 @@ function calculateLCOE(inputs) {
     const npv_opex = calculateNPVlikeExcel(discount_rate, cash_flows);
 
     // Step 7: Calculate total energy generated with degradation
-    const total_energy = calculateTotalEnergy(energy_generation, project_lifetime);
+    const total_energy = calculateTotalEnergy(energy_generation_per_year, project_lifetime);
 
     // Step 8: Calculate LCOE
     // LCOE = (CAPEX + NPV of OPEX) / Total Energy Generated
