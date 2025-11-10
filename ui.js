@@ -21,7 +21,6 @@ const UI = {
     // Input field IDs for easy reference
     inputIds: [
         'capacity',
-        'energy_generation',
         'capex_per_mw',
         'opex_percent',
         'interest_rate',
@@ -45,24 +44,13 @@ const UI = {
 
     // Default values for inputs
     defaults: {
-        
         capacity: 1.0,
-        energy_generation: 1627.53,
         capex_per_mw: 34400000,
         opex_percent: 1.0,
         interest_rate: 8.25,
         loan_tenure: 20,
         project_lifetime: 20,
         discount_rate: 9.0
-
-        // capacity: 1.0,
-        // energy_generation: 1700,
-        // capex_per_mw: 50000000,
-        // opex_percent: 2.0,
-        // interest_rate: 10.0,
-        // loan_tenure: 10,
-        // project_lifetime: 25,
-        // discount_rate: 8.0
     },
 
     // Charts auto-update flag
@@ -118,7 +106,6 @@ UI.formatPercent = function(value, decimals = 2) {
 UI.getInputs = function() {
     return {
         capacity: parseFloat(document.getElementById('capacity').value) || 0,
-        energy_generation: parseFloat(document.getElementById('energy_generation').value) || 0,
         capex_per_mw: parseFloat(document.getElementById('capex_per_mw').value) || 0,
         opex_percent: parseFloat(document.getElementById('opex_percent').value) || 0,
         interest_rate: parseFloat(document.getElementById('interest_rate').value) || 0,
@@ -129,11 +116,20 @@ UI.getInputs = function() {
 };
 
 /**
+ * Update calculated energy generation field
+ * Formula: Total Energy = capacity × 365 × 4
+ */
+UI.updateEnergyGeneration = function() {
+    const capacity = parseFloat(document.getElementById('capacity').value) || 0;
+    const energy_generation = calculateEnergyGeneration(capacity);
+    document.getElementById('energy_generation').value = energy_generation.toFixed(2);
+};
+
+/**
  * Reset all form inputs to default values
  */
 UI.resetForm = function() {
     document.getElementById('capacity').value = UI.defaults.capacity;
-    document.getElementById('energy_generation').value = UI.defaults.energy_generation;
     document.getElementById('capex_per_mw').value = UI.defaults.capex_per_mw;
     document.getElementById('opex_percent').value = UI.defaults.opex_percent;
     document.getElementById('interest_rate').value = UI.defaults.interest_rate;
@@ -141,6 +137,7 @@ UI.resetForm = function() {
     document.getElementById('project_lifetime').value = UI.defaults.project_lifetime;
     document.getElementById('discount_rate').value = UI.defaults.discount_rate;
     
+    UI.updateEnergyGeneration();
     UI.updateResults();
 };
 
@@ -155,6 +152,9 @@ UI.resetForm = function() {
 UI.updateResults = function() {
     // Get current inputs
     const inputs = UI.getInputs();
+    
+    // Add calculated energy generation to inputs
+    inputs.energy_generation = parseFloat(document.getElementById('energy_generation').value) || 0;
     
     // Calculate LCOE and all intermediate values
     const results = calculateLCOE(inputs);
@@ -216,6 +216,7 @@ UI.updateResults = function() {
  */
 UI.updateSensitivityChart = function() {
     const inputs = UI.getInputs();
+    inputs.energy_generation = parseFloat(document.getElementById('energy_generation').value) || 0;
     const min_rate = parseFloat(document.getElementById('sensitivity-min-rate').value) || 5;
     const max_rate = parseFloat(document.getElementById('sensitivity-max-rate').value) || 15;
     const step = parseFloat(document.getElementById('sensitivity-step').value) || 0.5;
@@ -424,6 +425,7 @@ UI.generateCSVContent = function() {
     csv += '\n=== CALCULATION NOTES ===\n';
     csv += 'OPEX Escalation Rate,5% per year\n';
     csv += 'Panel Degradation Rate,0.5% per year\n';
+    csv += 'Energy Generation Formula,Capacity × 365 × 4\n';
     csv += 'LCOE Formula,(CAPEX + NPV of OPEX) / Total Energy Generated\n';
 
     return csv;
@@ -474,13 +476,26 @@ UI.downloadCharts = function() {
  * Called once on page load
  */
 UI.initializeEventListeners = function() {
-    // Attach input change listeners
+    // Attach input change listeners for manual inputs
     UI.inputIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            element.addEventListener('input', () => UI.updateResults());
+            element.addEventListener('input', () => {
+                // If capacity changed, update energy generation
+                if (id === 'capacity') {
+                    UI.updateEnergyGeneration();
+                }
+                UI.updateResults();
+            });
         }
     });
+
+    // Make energy_generation field read-only
+    const energyField = document.getElementById('energy_generation');
+    if (energyField) {
+        energyField.setAttribute('readonly', 'true');
+        energyField.classList.add('auto-calc');
+    }
 
     // Attach sensitivity control listeners
     const sensitivityInputs = ['sensitivity-min-rate', 'sensitivity-max-rate', 'sensitivity-step'];
@@ -503,6 +518,9 @@ UI.initializeEventListeners = function() {
 function initializeApp() {
     // Set up all event listeners
     UI.initializeEventListeners();
+    
+    // Calculate initial energy generation
+    UI.updateEnergyGeneration();
     
     // Perform initial calculation
     UI.updateResults();

@@ -26,6 +26,17 @@ function calculateCAPEX(capacity, capex_per_mw) {
 }
 
 /**
+ * Calculate Total Energy Generated
+ * Formula: Total Energy = capacity × 365 × 4
+ * 
+ * @param {number} capacity - Installed capacity in MW
+ * @returns {number} Total annual energy generated in MWh
+ */
+function calculateEnergyGeneration(capacity) {
+    return capacity * 365 * 4;
+}
+
+/**
  * Calculate annual EMI (Equated Monthly Installment) converted to annual
  * Uses standard loan amortization formula:
  * EMI = P × [r(1+r)^n] / [(1+r)^n - 1]
@@ -162,7 +173,6 @@ function calculateCUE(annual_energy, capacity) {
  * 
  * @param {object} inputs - Input parameters object containing:
  *   - capacity: Installed capacity (MW)
- *   - energy_generation: Annual energy generation (MWh)
  *   - capex_per_mw: CAPEX per MW (₹)
  *   - opex_percent: Annual OPEX as % of CAPEX
  *   - interest_rate: Loan interest rate (%)
@@ -187,7 +197,6 @@ function calculateLCOE(inputs) {
     // Extract and validate inputs
     const {
         capacity,
-        energy_generation,
         capex_per_mw,
         opex_percent,
         interest_rate,
@@ -197,31 +206,32 @@ function calculateLCOE(inputs) {
     } = inputs;
 
     // Step 1: Calculate total CAPEX
-    console.log("Capacity :" + capacity);
-    console.log("Energy Generation :" + energy_generation);
-    console.log("CAPEX per MW :" + capex_per_mw);
     const capex = calculateCAPEX(capacity, capex_per_mw);
-    const energy_generation_per_year = energy_generation / capacity;
+    
+    // Step 2: Calculate annual energy generation
+    const energy_generation_per_year = calculateEnergyGeneration(capacity);
+    
     console.log("-----------------")
     console.log("Capacity :" + capacity);
     console.log("Energy Generation :" + energy_generation_per_year);
-    console.log("CAPEX per MW :" + capex);
+    console.log("CAPEX per MW :" + capex_per_mw);
+    console.log("Total CAPEX :" + capex);
 
-    // Step 2: Calculate annual OPEX and annual EMI
+    // Step 3: Calculate annual OPEX and annual EMI
     const annual_opex = (capex * opex_percent) / 100;
     // const annual_emi = calculateEMI(capex, interest_rate, loan_tenure);
     const annual_emi = calculateEMI_likeExcel(capex, interest_rate, loan_tenure);
 
-    // Step 3: Calculate total O&M over project lifetime
+    // Step 4: Calculate total O&M over project lifetime
     const total_om = calculateTotalOM(annual_opex, project_lifetime);
 
-    // Step 4: Total loan repayment over project lifetime
+    // Step 5: Total loan repayment over project lifetime
     // Note: EMI only paid during loan_tenure, then becomes 0
     const total_loan = annual_emi * loan_tenure;
 
     const total_opex = total_om + total_loan;
 
-    // Step 5: Create annual cash flows for NPV
+    // Step 6: Create annual cash flows for NPV
     // Each year includes: escalated O&M + EMI (if within loan tenure)
     const cash_flows = [];
     for (let year = 0; year < project_lifetime; year++) {
@@ -231,22 +241,22 @@ function calculateLCOE(inputs) {
         console.log('Cash flow for year', year + 1, ':', cash_flows[year]);
     }
 
-    // Step 6: Calculate NPV of OPEX (cash flows discounted to present)
+    // Step 7: Calculate NPV of OPEX (cash flows discounted to present)
     // const npv_opex = calculateNPV(discount_rate, cash_flows);
     const npv_opex = calculateNPVlikeExcel(discount_rate, cash_flows);
 
-    // Step 7: Calculate total energy generated with degradation
+    // Step 8: Calculate total energy generated with degradation
     const total_energy = calculateTotalEnergy(energy_generation_per_year, project_lifetime);
 
-    // Step 8: Calculate LCOE
+    // Step 9: Calculate LCOE
     // LCOE = (CAPEX + NPV of OPEX) / Total Energy Generated
     const lcoe_mwh = total_energy > 0 
         ? (capex + npv_opex) / total_energy 
         : 0;
     const lcoe_kwh = lcoe_mwh / 1000;
 
-    // Step 9: Calculate CUE
-    const cue = calculateCUE(energy_generation, capacity);
+    // Step 10: Calculate CUE
+    const cue = calculateCUE(energy_generation_per_year, capacity);
 
     // Return comprehensive results object
     return {
