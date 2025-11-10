@@ -118,7 +118,8 @@ label {
 }
 
 input[type="number"],
-input[type="text"] {
+input[type="text"],
+select {
     padding: 12px;
     border: 2px solid #e0e0e0;
     border-radius: 6px;
@@ -127,7 +128,8 @@ input[type="text"] {
 }
 
 input[type="number"]:focus,
-input[type="text"]:focus {
+input[type="text"]:focus,
+select:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
@@ -224,7 +226,6 @@ input[type="text"]:focus {
 }
 
 button {
-    flex: 1;
     padding: 14px;
     border: none;
     border-radius: 6px;
@@ -237,6 +238,7 @@ button {
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    flex: 1;
 }
 
 .btn-primary:hover {
@@ -248,6 +250,7 @@ button {
     background: #f0f0f0;
     color: #333;
     border: 2px solid #e0e0e0;
+    flex: 1;
 }
 
 .btn-secondary:hover {
@@ -266,6 +269,421 @@ button {
 }
 
 /* ============================================
+   TABBED INTERFACE
+   ============================================ */
+
+.analysis-section {
+    padding: 40px;
+    background: #fafafa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.tab-navigation {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: transparent;
+    color: #666;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex: 0 0 auto;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-header {
+    margin-bottom: 30px;
+}
+
+.tab-header h3 {
+    color: #333;
+    font-size: 1.3em;
+    margin-bottom: 8px;
+}
+
+.tab-header p {
+    color: #666;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+/* ============================================
+   CONTROLS & INPUTS
+   ============================================ */
+
+.sensitivity-controls,
+.heatmap-controls {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sensitivity-controls label,
+.heatmap-controls label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.heatmap-controls select {
+    cursor: pointer;
+}
+
+/* ============================================
+   CHART WRAPPER
+   ============================================ */
+
+.chart-wrapper {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.chart-wrapper canvas {
+    max-height: 400px;
+}
+
+.chart-wrapper h4 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.range-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.range-summary-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.range-summary-table th {
+    padding: 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95em;
+    white-space: nowrap;
+}
+
+.range-summary-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95em;
+}
+
+.range-summary-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.range-summary-table .param-name {
+    font-weight: 600;
+    color: #333;
+    min-width: 150px;
+}
+
+.range-summary-table .lcoe-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.range-summary-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.heatmap-table th {
+    background: #f0f0f0;
+    color: #333;
+    font-weight: 600;
+}
+
+/* ============================================
+   HEATMAP ALTERNATIVES STYLING
+   ============================================ */
+
+/* Grid Heatmap */
+.heatmap-grid-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+}
+
+.heatmap-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+}
+
+.heatmap-container {
+    display: flex;
+    align-self: center;
+    gap: 0;
+    align-items: flex-start;
+}
+
+.heatmap-axis-y {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 60px;
+    margin-right: 10px;
+}
+
+.heatmap-label-y {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #333;
+    min-height: 70px;
+    text-align: right;
+}
+
+.heatmap-grid-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.heatmap-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.heatmap-row {
+    display: flex;
+    gap: 0;
+}
+
+.heatmap-cell {
+    flex: 1;
+    min-width: 80px;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.heatmap-cell-value {
+    display: block;
+    line-height: 1.2;
+}
+
+.heatmap-labels-x {
+    display: flex;
+    gap: 0;
+    justify-content: flex-start;
+    padding: 15px 0 0 0;
+}
+
+.heatmap-label-x {
+    flex: 1;
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #333;
+    min-width: 80px;
+}
+
+.heatmap-legend {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #333;
+}
+
+.legend-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid #999;
+}
+
+/* Cell Heatmap */
+.heatmap-cell-table {
+    align-self: center;
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.heatmap-cell-table th {
+    background: #f0f0f0;
+    color: #333;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9em;
+}
+
+.heatmap-cell-table th:first-child {
+    text-align: center;
+    width: 80px;
+}
+
+.heatmap-cell-table td {
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    min-width: 70px;
+    min-height: 70px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.heatmap-cell-td {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.heatmap-cell-td:hover {
+    transform: scale(1.1);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+}
+
+.cell-value {
+    display: block;
+    line-height: 1.2;
+}
+
+.cell-intensity {
+    font-size: 0.7em;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+/* Heatmap Containers */
+#heatmap-grid-container,
+#heatmap-cell-container {
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#chart-heatmap-smooth {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+}
+
+/* ============================================
    RESPONSIVE DESIGN
    ============================================ */
 
@@ -274,14 +692,39 @@ button {
         grid-template-columns: 1fr;
         gap: 40px;
     }
+
+    .tab-navigation {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .tab-btn {
+        border-bottom: none;
+        border-right: 3px solid transparent;
+        text-align: left;
+        width: 100%;
+    }
+
+    .tab-btn:hover {
+        border-right-color: #667eea;
+    }
+
+    .tab-btn.active {
+        border-right-color: #667eea;
+    }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     header h1 {
         font-size: 1.8em;
     }
 
     .content {
+        padding: 20px;
+        gap: 30px;
+    }
+
+    .analysis-section {
         padding: 20px;
     }
 
@@ -291,5 +734,59 @@ button {
 
     .button-group {
         flex-direction: column;
+    }
+
+    .sensitivity-controls,
+    .heatmap-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sensitivity-controls input,
+    .heatmap-controls select {
+        width: 100%;
+    }
+
+    .chart-wrapper {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 640px) {
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .content {
+        padding: 15px;
+        grid-template-columns: 1fr;
+    }
+
+    .panel h2 {
+        font-size: 1.3em;
+    }
+
+    .tab-navigation {
+        gap: 3px;
+        margin-bottom: 20px;
+    }
+
+    .tab-btn {
+        padding: 10px 12px;
+        font-size: 0.85em;
+    }
+
+    .result-card .value {
+        font-size: 1.4em;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 0.9em;
     }
 }

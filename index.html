@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solar LCOE Calculator</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -30,10 +32,10 @@
                 <!-- Annual Energy Generation -->
                 <div class="input-group">
                     <label>
-                        Annual Energy Generation (MWh)
+                        Total Energy Generated (MWh)
                         <span class="tooltip-icon" data-tooltip="Expected annual energy output">?</span>
                     </label>
-                    <input type="number" id="energy_generation" value="1700" step="10" min="0">
+                    <input type="number" id="energy_generation" value="1627.53" step="10" min="0">
                 </div>
 
                 <div class="section-divider"></div>
@@ -41,10 +43,10 @@
                 <!-- CAPEX -->
                 <div class="input-group">
                     <label>
-                        CAPEX per MW (₹)
-                        <span class="tooltip-icon" data-tooltip="Capital cost per MW">?</span>
+                        Total CAPEX (₹)
+                        <span class="tooltip-icon" data-tooltip="Total Capital cost">?</span>
                     </label>
-                    <input type="number" id="capex_per_mw" value="50000000" step="1000000" min="0">
+                    <input type="number" id="capex_per_mw" value="34400000" step="1000000" min="0">
                 </div>
 
                 <!-- OPEX Percentage -->
@@ -53,7 +55,7 @@
                         Annual OPEX (% of CAPEX)
                         <span class="tooltip-icon" data-tooltip="Operation & Maintenance as % of total CAPEX">?</span>
                     </label>
-                    <input type="number" id="opex_percent" value="2.0" step="0.1" min="0">
+                    <input type="number" id="opex_percent" value="1.0" step="0.1" min="0">
                 </div>
 
                 <!-- Auto-calculated OPEX -->
@@ -72,8 +74,9 @@
                     <label>
                         Loan Interest Rate (%)
                         <span class="tooltip-icon" data-tooltip="Annual interest rate on debt">?</span>
+                        <span style="font-size: 0.8em; color: #a09e80;">Put interest rate as 0 if no loan is applicable.</span>
                     </label>
-                    <input type="number" id="interest_rate" value="10.0" step="0.1" min="0">
+                    <input type="number" id="interest_rate" value="8.25" step="0.1" min="0">
                 </div>
 
                 <div class="input-group">
@@ -81,7 +84,7 @@
                         Loan Tenure (Years)
                         <span class="tooltip-icon" data-tooltip="Years to repay the loan">?</span>
                     </label>
-                    <input type="number" id="loan_tenure" value="10" step="1" min="1">
+                    <input type="number" id="loan_tenure" value="20" step="1" min="1">
                 </div>
 
                 <!-- Auto-calculated EMI -->
@@ -101,7 +104,7 @@
                         Project Lifetime (Years)
                         <span class="tooltip-icon" data-tooltip="Total analysis period">?</span>
                     </label>
-                    <input type="number" id="project_lifetime" value="25" step="1" min="1">
+                    <input type="number" id="project_lifetime" value="20" step="1" min="1">
                 </div>
 
                 <!-- Discount Rate -->
@@ -110,13 +113,13 @@
                         Discount Rate (%)
                         <span class="tooltip-icon" data-tooltip="Rate for NPV calculation">?</span>
                     </label>
-                    <input type="number" id="discount_rate" value="8.0" step="0.1" min="0" max="50">
+                    <input type="number" id="discount_rate" value="9.0" step="0.1" min="0" max="50">
                 </div>
 
                 <!-- CUE -->
                 <div class="input-group">
                     <label>
-                        Capacity Utilization Efficiency
+                        Capacity Utilization Factor
                         <span class="tooltip-icon" data-tooltip="Annual energy / (Capacity × 8760 hours)">?</span>
                     </label>
                     <input type="text" id="cue_calculated" readonly class="auto-calc">
@@ -128,7 +131,8 @@
 
                 <div class="button-group">
                     <button class="btn-secondary" onclick="UI.resetForm()">🔄 Reset</button>
-                    <button class="btn-primary" onclick="UI.downloadCSV()">📥 Export CSV</button>
+                    <button class="btn-primary" onclick="UI.updateResults()">📊 Calculate LCOE</button>
+                    <!-- <button class="btn-primary" onclick="UI.downloadCSV()">📥 Export CSV</button> -->
                 </div>
             </div>
 
@@ -173,7 +177,7 @@
                         </tr>
                         <tr>
                             <td class="label">Total OPEX (₹)</td>
-                            <td class="value" id="breakdown-total-opex">0.00</td>
+                            <td class="value" id="breakdown-opex">0.00</td>
                         </tr>
                         <tr>
                             <td class="label">NPV of OPEX (₹)</td>
@@ -195,9 +199,125 @@
                 </div>
             </div>
         </div>
+
+        <!-- TABBED ANALYSIS SECTION -->
+        <div class="analysis-section">
+            <h2 style="text-align: center; color: #333; margin-bottom: 20px;">📈 Charts & Analysis</h2>
+            
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="UI.switchTab('sensitivity')">
+                    🌪️ Sensitivity Analysis
+                </button>
+                <button class="tab-btn" onclick="UI.switchTab('heatmap')">
+                    🔥 Parameter Heatmap
+                </button>
+                <button class="tab-btn" onclick="UI.switchTab('ranges')">
+                    📊 Range Analysis
+                </button>
+            </div>
+
+            <!-- Tab Content Containers -->
+            
+            <!-- SENSITIVITY TAB -->
+            <div id="tab-sensitivity" class="tab-content active">
+                <div class="tab-header">
+                    <h3>🌪️ Tornado Diagram: Which Parameters Matter Most?</h3>
+                    <p>Shows how ±% change in each parameter affects LCOE. <strong>Wider bars = More impact</strong>. Ranked by sensitivity.</p>
+                </div>
+
+                <div class="sensitivity-controls">
+                    <label>Variance (±%):</label>
+                    <input type="number" id="tornado-variance" value="20" min="5" max="50" step="5" style="width: 80px;">
+                    <button class="btn-primary" onclick="UI.updateTornadoChart()" style="width: auto; padding: 8px 16px;">📊 Generate Chart</button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="chart-tornado"></canvas>
+                </div>
+            </div>
+
+            <!-- HEATMAP TAB -->
+            <div id="tab-heatmap" class="tab-content">
+                <div class="tab-header">
+                    <h3>🔥 Dual Parameter Heatmap: Interactive Sensitivity</h3>
+                    <p>Explore LCOE across two parameters simultaneously. <strong>Green = Low LCOE (better)</strong>, <strong>Red = High LCOE (worse)</strong>.</p>
+                </div>
+
+                <div class="heatmap-controls">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div class="input-group">
+                            <label>First Parameter:</label>
+                            <select id="heatmap-param1" onchange="UI.updateHeatmap()">
+                                <option value="capex_per_mw">CAPEX per MW (₹)</option>
+                                <option value="energy_generation">Annual Energy (MWh)</option>
+                                <option value="discount_rate">Discount Rate (%)</option>
+                                <option value="opex_percent">OPEX % of CAPEX</option>
+                                <option value="interest_rate">Interest Rate (%)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Second Parameter:</label>
+                            <select id="heatmap-param2" onchange="UI.updateHeatmap()">
+                                <option value="discount_rate">Discount Rate (%)</option>
+                                <option value="capex_per_mw">CAPEX per MW (₹)</option>
+                                <option value="energy_generation">Annual Energy (MWh)</option>
+                                <option value="opex_percent">OPEX % of CAPEX</option>
+                                <option value="interest_rate">Interest Rate (%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="UI.updateHeatmap()" style="width: 100%;">🔥 Generate Heatmap</button>
+                </div>
+
+                <!-- Grid Heatmap Container -->
+                <div id="heatmap-grid-container" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- RANGES TAB -->
+            <div id="tab-ranges" class="tab-content">
+                <div class="tab-header">
+                    <h3>📊 Parameter Range Analysis</h3>
+                    <p>See how LCOE changes across realistic parameter ranges. Understand the full sensitivity spectrum.</p>
+                </div>
+
+                <!-- <button class="btn-primary" onclick="UI.generateRangeAnalysis()" style="width: 100%; margin-bottom: 20px;">📈 Generate All Charts</button> -->
+
+                <!-- Combined Parameters Chart -->
+                <div class="chart-wrapper">
+                    <h4 style="text-align: center; color: #333; margin-bottom: 15px;">📈 Parameter Sensitivity Comparison</h4>
+                    <canvas id="chart-parameters-combo"></canvas>
+                </div>
+
+                <!-- Individual Parameter Charts -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; margin-top: 30px;">
+                    <div class="chart-wrapper">
+                        <canvas id="chart-capex-range"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-energy-range"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-discount-range"></canvas>
+                    </div>
+                </div>
+
+                <!-- Range Summary Table -->
+                <div style="margin-top: 40px;">
+                    <h4 style="color: #333; margin-bottom: 15px;">📋 Range Summary Table</h4>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                        Quick reference showing LCOE at minimum, current, and maximum for each parameter.
+                    </p>
+                    <div id="range-summary-container" style="overflow-x: auto; background: white; padding: 20px; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="calculator.js"></script>
+    <script src="advanced-charts.js"></script>
+    <script src="heatmap-alternatives.js"></script>
+    <script src="range-charts.js"></script>
     <script src="ui.js"></script>
 </body>
 </html>
